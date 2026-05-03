@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IndustrIQ — Industrial Intelligence Platform</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">⬡</div>
+    <div class="logo-text">
+      <span class="logo-main">IndustrIQ</span>
+      <span class="logo-sub">Intelligence Platform</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section-label">DASHBOARDS</div>
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" data-target="engineer" onclick="switchDashboard('engineer')">
+      <span class="nav-icon">⚙</span>
+      <span class="nav-label">Engineer Dashboard</span>
+      <span class="nav-badge" id="eng-badge">3</span>
+    </button>
+    <button class="nav-btn" data-target="decision" onclick="switchDashboard('decision')">
+      <span class="nav-icon">💸</span>
+      <span class="nav-label">Decision Dashboard</span>
+      <span class="nav-badge warning" id="dec-badge">5</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-section-label">SYSTEM</div>
+  <div class="sys-status-panel">
+    <div class="sys-row">
+      <span class="sys-dot online"></span>
+      <span class="sys-label">MQTT Broker</span>
+      <span class="sys-val" id="mqtt-status">ONLINE</span>
+    </div>
+    <div class="sys-row">
+      <span class="sys-dot online"></span>
+      <span class="sys-label">SCADA Link</span>
+      <span class="sys-val">SYNCED</span>
+    </div>
+    <div class="sys-row">
+      <span class="sys-dot" id="data-quality-dot"></span>
+      <span class="sys-label">Data Quality</span>
+      <span class="sys-val" id="data-quality">97.4%</span>
+    </div>
+    <div class="sys-row">
+      <span class="sys-dot online"></span>
+      <span class="sys-label">Last Update</span>
+      <span class="sys-val" id="last-update">--:--:--</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="plant-info">
+      <div class="plant-name">PLANT: SFAX-02</div>
+      <div class="plant-sub">Pharma Production Facility</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content" id="main-content">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="page-title">⚙ Engineer Dashboard</div>
+      <div class="page-subtitle" id="page-subtitle">Real-time technical monitoring & anomaly detection</div>
+    </div>
+    <div class="topbar-right">
+      <div class="time-display" id="time-display">--:--:--</div>
+      <div class="date-display" id="date-display">-- --- ----</div>
+      <div class="alert-bell" id="alert-bell">
+        🔔 <span class="bell-count" id="bell-count">3</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       ENGINEER DASHBOARD
+  ============================================================ -->
+  <div class="dashboard" id="engineer-dashboard">
+
+    <!-- ROW 1: Real-Time KPIs -->
+    <section class="section-block">
+      <div class="section-header">
+        <span class="section-tag">LIVE</span>
+        <h2>Real-Time Industrial KPIs</h2>
+        <div class="live-dot"></div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card" data-kpi="power">
+          <div class="kpi-label">Active Power</div>
+          <div class="kpi-value" id="kpi-power">—</div>
+          <div class="kpi-unit">kW</div>
+          <div class="kpi-bar"><div class="kpi-fill" id="bar-power" style="width:72%"></div></div>
+          <div class="kpi-trend" id="trend-power">▲ +2.1%</div>
+        </div>
+        <div class="kpi-card" data-kpi="voltage">
+          <div class="kpi-label">Voltage</div>
+          <div class="kpi-value" id="kpi-voltage">—</div>
+          <div class="kpi-unit">V</div>
+          <div class="kpi-bar"><div class="kpi-fill" id="bar-voltage" style="width:95%"></div></div>
+          <div class="kpi-trend ok" id="trend-voltage">● STABLE</div>
+        </div>
+        <div class="kpi-card" data-kpi="current">
+          <div class="kpi-label">Current</div>
+          <div class="kpi-value" id="kpi-current">—</div>
+          <div class="kpi-unit">A</div>
+          <div class="kpi-bar"><div class="kpi-fill warn" id="bar-current" style="width:81%"></div></div>
+          <div class="kpi-trend warn" id="trend-current">▲ HIGH</div>
+        </div>
+        <div class="kpi-card" data-kpi="pf">
+          <div class="kpi-label">Power Factor</div>
+          <div class="kpi-value" id="kpi-pf">—</div>
+          <div class="kpi-unit">cos φ</div>
+          <div class="kpi-bar"><div class="kpi-fill danger" id="bar-pf" style="width:74%"></div></div>
+          <div class="kpi-trend danger" id="trend-pf">⚠ PENALTY RISK</div>
+        </div>
+        <div class="kpi-card" data-kpi="freq">
+          <div class="kpi-label">Frequency</div>
+          <div class="kpi-value" id="kpi-freq">—</div>
+          <div class="kpi-unit">Hz</div>
+          <div class="kpi-bar"><div class="kpi-fill" id="bar-freq" style="width:99%"></div></div>
+          <div class="kpi-trend ok" id="trend-freq">● NOMINAL</div>
+        </div>
+        <div class="kpi-card" data-kpi="gas">
+          <div class="kpi-label">Gas Flow</div>
+          <div class="kpi-value" id="kpi-gas">—</div>
+          <div class="kpi-unit">Nm³/h</div>
+          <div class="kpi-bar"><div class="kpi-fill warn" id="bar-gas" style="width:68%"></div></div>
+          <div class="kpi-trend" id="trend-gas">▼ -1.4%</div>
+        </div>
+        <div class="kpi-card" data-kpi="temp">
+          <div class="kpi-label">Cooling Temp</div>
+          <div class="kpi-value" id="kpi-temp">—</div>
+          <div class="kpi-unit">°C</div>
+          <div class="kpi-bar"><div class="kpi-fill danger" id="bar-temp" style="width:88%"></div></div>
+          <div class="kpi-trend danger" id="trend-temp">⚠ ELEVATED</div>
+        </div>
+        <div class="kpi-card" data-kpi="pressure">
+          <div class="kpi-label">Compressor Press.</div>
+          <div class="kpi-value" id="kpi-pressure">—</div>
+          <div class="kpi-unit">bar</div>
+          <div class="kpi-bar"><div class="kpi-fill warn" id="bar-pressure" style="width:79%"></div></div>
+          <div class="kpi-trend warn" id="trend-pressure">▲ +0.3 bar</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 2: Charts -->
+    <section class="section-block">
+      <div class="section-header">
+        <span class="section-tag">TRENDS</span>
+        <h2>Live Monitoring Graphs</h2>
+      </div>
+      <div class="charts-grid-2">
+        <div class="chart-card">
+          <div class="chart-title">Energy Consumption (kWh) — Last 24h</div>
+          <canvas id="chart-energy"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Temperature Trends — Chillers & Process (°C)</div>
+          <canvas id="chart-temp"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Current Fluctuations (A)</div>
+          <canvas id="chart-current"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Gas Consumption (Nm³/h)</div>
+          <canvas id="chart-gas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 3: Alarms + Virtual Sensors -->
+    <section class="section-block">
+      <div class="two-col-layout">
+
+        <!-- Alarm Panel -->
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag critical">ALARMS</span>
+            <h2>Smart Alarm System</h2>
+          </div>
+          <div class="alarm-list" id="alarm-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Virtual Sensors -->
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag ai">AI COMPUTED</span>
+            <h2>Virtual Sensors</h2>
+          </div>
+          <div class="virtual-sensors" id="virtual-sensors">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 4: Energy Flow + AI Recs -->
+    <section class="section-block">
+      <div class="two-col-layout">
+
+        <!-- Energy Flow -->
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag">FLOW</span>
+            <h2>Energy Flow Visualization</h2>
+          </div>
+          <div class="energy-flow" id="energy-flow">
+            <div class="flow-diagram">
+              <div class="flow-node source">
+                <div class="flow-icon">⚡</div>
+                <div class="flow-label">STEG Grid</div>
+                <div class="flow-val" id="fl-grid">842 kW</div>
+              </div>
+              <div class="flow-arrows-col">
+                <div class="flow-arrow right">→</div>
+              </div>
+              <div class="flow-node hub">
+                <div class="flow-icon">🏭</div>
+                <div class="flow-label">Tri-Gen Unit</div>
+                <div class="flow-val">Combined</div>
+              </div>
+              <div class="flow-arrows-col multi">
+                <div class="flow-arrow right ok">→ Elec</div>
+                <div class="flow-arrow right warn">→ Heat</div>
+                <div class="flow-arrow right danger">→ Cool</div>
+              </div>
+              <div class="flow-nodes-col">
+                <div class="flow-node small ok">
+                  <div class="flow-label">Electricity</div>
+                  <div class="flow-val" id="fl-elec">312 kW</div>
+                </div>
+                <div class="flow-node small warn">
+                  <div class="flow-label">Heat Used</div>
+                  <div class="flow-val" id="fl-heat">198 kW</div>
+                </div>
+                <div class="flow-node small danger">
+                  <div class="flow-label">Wasted</div>
+                  <div class="flow-val" id="fl-waste">332 kW</div>
+                </div>
+              </div>
+            </div>
+            <div class="flow-stats">
+              <div class="flow-stat">
+                <span class="fstat-label">Self-Production</span>
+                <span class="fstat-val ok">37%</span>
+              </div>
+              <div class="flow-stat">
+                <span class="fstat-label">Grid Dependency</span>
+                <span class="fstat-val warn">63%</span>
+              </div>
+              <div class="flow-stat">
+                <span class="fstat-label">Recovery Rate</span>
+                <span class="fstat-val danger">41%</span>
+              </div>
+              <div class="flow-stat">
+                <span class="fstat-label">Waste Rate</span>
+                <span class="fstat-val danger">39.4%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Recommendations (Engineer) -->
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag ai">AI</span>
+            <h2>Technical AI Recommendations</h2>
+          </div>
+          <div class="ai-recs" id="ai-recs-eng">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- end engineer-dashboard -->
+
+
+  <!-- ============================================================
+       DECISION DASHBOARD
+  ============================================================ -->
+  <div class="dashboard hidden" id="decision-dashboard">
+
+    <!-- ROW 1: Financial KPIs -->
+    <section class="section-block">
+      <div class="section-header">
+        <span class="section-tag money">FINANCIAL</span>
+        <h2>Financial KPIs — Current Month</h2>
+      </div>
+      <div class="kpi-grid financial">
+        <div class="kpi-card fin big">
+          <div class="kpi-label">Total Energy Cost</div>
+          <div class="kpi-value" id="fin-total">—</div>
+          <div class="kpi-unit">TND / month</div>
+          <div class="kpi-trend danger">▲ +8.3% vs last month</div>
+        </div>
+        <div class="kpi-card fin">
+          <div class="kpi-label">Electricity Cost</div>
+          <div class="kpi-value" id="fin-elec">—</div>
+          <div class="kpi-unit">TND</div>
+          <div class="kpi-trend danger">▲ 62% of total</div>
+        </div>
+        <div class="kpi-card fin">
+          <div class="kpi-label">Gas Cost</div>
+          <div class="kpi-value" id="fin-gas">—</div>
+          <div class="kpi-unit">TND</div>
+          <div class="kpi-trend warn">▲ 31% of total</div>
+        </div>
+        <div class="kpi-card fin">
+          <div class="kpi-label">Water Cost</div>
+          <div class="kpi-value" id="fin-water">—</div>
+          <div class="kpi-unit">TND</div>
+          <div class="kpi-trend ok">● 7% of total</div>
+        </div>
+        <div class="kpi-card fin">
+          <div class="kpi-label">Cost per kWh</div>
+          <div class="kpi-value" id="fin-kwh">—</div>
+          <div class="kpi-unit">TND/kWh</div>
+          <div class="kpi-trend warn">▲ Peak hours effect</div>
+        </div>
+        <div class="kpi-card fin">
+          <div class="kpi-label">Cost / Production Unit</div>
+          <div class="kpi-value" id="fin-unit">—</div>
+          <div class="kpi-unit">TND/unit</div>
+          <div class="kpi-trend danger">▲ +11% vs target</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 2: Loss Analysis -->
+    <section class="section-block">
+      <div class="loss-hero">
+        <div class="loss-headline">
+          <div class="loss-icon">🔥</div>
+          <div>
+            <div class="loss-title">WHERE IS THE FACTORY LOSING MONEY?</div>
+            <div class="loss-sub">Real-time energy waste translated to financial impact</div>
+          </div>
+        </div>
+        <div class="loss-metrics">
+          <div class="loss-metric">
+            <div class="lm-val danger" id="loss-pct">39.4%</div>
+            <div class="lm-label">Energy Wasted</div>
+          </div>
+          <div class="loss-metric">
+            <div class="lm-val danger" id="loss-kwh">332 kWh</div>
+            <div class="lm-label">Lost Energy (now)</div>
+          </div>
+          <div class="loss-metric">
+            <div class="lm-val danger" id="loss-daily">8,240</div>
+            <div class="lm-label">TND Lost / Day</div>
+          </div>
+          <div class="loss-metric">
+            <div class="lm-val danger" id="loss-monthly">247,200</div>
+            <div class="lm-label">TND Lost / Month</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 3: Loss Sources + Trends -->
+    <section class="section-block">
+      <div class="two-col-layout">
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag critical">AUDIT</span>
+            <h2>Source of Energy Loss</h2>
+          </div>
+          <canvas id="chart-loss-source" style="max-height:280px"></canvas>
+          <div class="loss-insights" id="loss-insights">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag money">TRENDS</span>
+            <h2>Monthly Consumption vs Cost</h2>
+          </div>
+          <canvas id="chart-monthly" style="max-height:220px"></canvas>
+          <div class="anomaly-flag">
+            <span class="af-icon">⚠</span>
+            <span>Anomaly detected: <strong>March spike</strong> — compressor left on overnight (+18,400 TND overrun)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 4: Predictions + Alert→Business -->
+    <section class="section-block">
+      <div class="two-col-layout">
+
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag ai">FORECAST</span>
+            <h2>Predictive Intelligence</h2>
+          </div>
+          <div class="predictions-panel" id="predictions-panel">
+            <!-- Populated by JS -->
+          </div>
+          <canvas id="chart-forecast" style="max-height:200px; margin-top:1rem"></canvas>
+        </div>
+
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag critical">TRANSLATE</span>
+            <h2>Technical Alerts → Business Impact</h2>
+          </div>
+          <div class="biz-alerts" id="biz-alerts">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ROW 5: Recommendations + Virtual Business Metrics -->
+    <section class="section-block">
+      <div class="two-col-layout">
+
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag ai">ACTION</span>
+            <h2>Actionable Recommendations</h2>
+          </div>
+          <div class="action-recs" id="action-recs">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="panel-box">
+          <div class="section-header">
+            <span class="section-tag money">METRICS</span>
+            <h2>Virtual Business Metrics</h2>
+          </div>
+          <div class="biz-metrics" id="biz-metrics">
+            <!-- Populated by JS -->
+          </div>
+          <canvas id="chart-efficiency" style="max-height:200px; margin-top:1rem"></canvas>
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- end decision-dashboard -->
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
